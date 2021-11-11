@@ -5,7 +5,7 @@ import requests, hgtk, random
 history = []
 playing = True
 #키 발급은 https://krdict.korean.go.kr/openApi/openApiInfo
-apikey = ''
+apikey = 'EC3A8C4A28DC6BE15AF8518696C06CF4'
 
 #좀 치사한 한방단어 방지 목록
 blacklist = ['즘', '틱', '늄', '슘', '퓸', '늬', '뺌', '섯', '숍', '튼', '름', '늠', '쁨']
