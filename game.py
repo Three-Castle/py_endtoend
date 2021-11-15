@@ -1,12 +1,15 @@
 #pip install requests hgtk
 import requests, hgtk, random
 
+
+# 기능1 - history 선언
 #이미 있는 단어 알기위해 단어목록 저장
 history = []
 playing = True
 #키 발급은 https://krdict.korean.go.kr/openApi/openApiInfo
 apikey = 'EC3A8C4A28DC6BE15AF8518696C06CF4'
 
+# 기능5 - blacklist
 #좀 치사한 한방단어 방지 목록
 blacklist = ['즘', '틱', '늄', '슘', '퓸', '늬', '뺌', '섯', '숍', '튼', '름', '늠', '쁨']
 
@@ -38,11 +41,14 @@ def findword(query):
     #단어 목록을 불러오기
     words = midReturn_all(response.text,'<item>','</item>')
     for w in words:
+        # 기능1 - history 단어 확인
         #이미 쓴 단어가 아닐때
         if not (w in history):           
             #한글자가 아니고 품사가 명사일때
             word = midReturn(w,'<word>','</word>')
             pos = midReturn(w,'<pos>','</pos>')
+            
+            # 기능5 - blacklist
             if len(word) > 1 and pos == '명사' and not word in history and not word[len(word)-1] in blacklist:
                 ans.append(w)
     if len(ans)>0:
@@ -97,6 +103,7 @@ while(playing):
         query = input(answord + ' > ')
         wordOK = True
         
+        # 기능2 - 재시작/게임종료
         if query == '/그만':
             playing = False
             print('컴퓨터의 승리!')      
@@ -116,7 +123,8 @@ while(playing):
                     print(sword + '(으)로 시작하는 단어를 입력해 주십시오.')
                     
             else:
-                #첫 글자의 초성 분석하여 두음법칙 적용 -> 규칙에 아직 완벽하게 맞지 않으므로 차후 수정 필요
+                # 기능4 - 두음법칙
+                # 첫 글자의 초성 분석하여 두음법칙 적용 -> 규칙에 아직 완벽하게 맞지 않으므로 차후 수정 필요
                 if not len(history)==0 and not query[0] == sword and not query=='':
                     sdis = hgtk.letter.decompose(sword)
                     qdis = hgtk.letter.decompose(query[0])
@@ -126,10 +134,12 @@ while(playing):
                         wordOK = False
                         print(sword + '(으)로 시작하는 단어여야 합니다.')
                     
+                # 기능3 - 잘못된 글자 입력
                 if len(query) == 1:
                     wordOK = False
                     print('적어도 두 글자가 되어야 합니다')
 
+                # 기능1 - history 안에 있는 단어인지 확인
                 if query in history:
                     wordOK = False
                     print('이미 입력한 단어입니다')
@@ -138,14 +148,16 @@ while(playing):
                     print('아.. 좀 치사한데요..')
 
                 if wordOK:
-                    #단어의 유효성을 체크
+                    # 기능3
+                    # 단어의 유효성을 체크
                     ans = checkexists(query)
                     if ans == '':
                         wordOK = False
                         print('유효한 단어를 입력해 주십시오')
                     else:
                         print('(' + midReturn(ans, '<definition>', '</definition>') + ')\n')
-                        
+
+    # 기능1 - 사용자 입력 시 history 단어 추가                
     history.append(query)
     
     if playing:       
@@ -176,6 +188,8 @@ while(playing):
         else:
             answord = midReturn(ans, '<word>', '</word>') #단어 불러오기
             ansdef = midReturn(ans, '<definition>', '</definition>') # 품사 불러오기
+            
+            # 기능1 - 컴퓨터 입력 시 history 단어 추가
             history.append(answord)
             
             print(query, '>', answord, '\n('+ansdef+')\n')
