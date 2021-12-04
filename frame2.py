@@ -1,9 +1,12 @@
-import tkinter as tk               
+import tkinter as tk          
+from tkinter import ttk      
 from tkinter import font as tkfont
 from tkinter.constants import HORIZONTAL, VERTICAL  
 from PIL import Image, ImageTk
 import tkinter.messagebox
+import time
 import requests, hgtk, random
+
 
 class App(tk.Tk):
   def __init__(self, *args, **kwargs):
@@ -19,6 +22,8 @@ class App(tk.Tk):
     self.geometry("800x700") # 화면 크기
     self.configure(bg = 'black') # 배경색 변경
     self.resizable(False, False) # 크기조절 불가
+    self.remaintime = 5
+    self.count = 0
     self.playing = True
     self.history = []
     self.userhistory = []
@@ -28,8 +33,6 @@ class App(tk.Tk):
     self.dict = {}
     self.answord = ''
     self.sword = ''
-    self.playerlist=[]
-    self.computerlist=[]
 
     #키 발급은 https://krdict.korean.go.kr/openApi/openApiInfo
     self.apikey = 'EC3A8C4A28DC6BE15AF8518696C06CF4'
@@ -39,59 +42,24 @@ class App(tk.Tk):
     container.grid_rowconfigure(0, weight=1)
     container.grid_columnconfigure(0, weight=1)
 
-
     self.frames = {}
     for F in (StartPage, GamePage, EndPage, HistoryPage):
       page_name = F.__name__
       frame = F(parent=container, controller=self)
       self.frames[page_name] = frame
-
       frame.grid(row=0, column=0, sticky="nsew")
-
 
     # 시작화면을 띄운다
     self.show_frame("StartPage")
 
-
-  # 화면을 전환한다
   def show_frame(self, page_name):
+    # 화면을 전환한다
     frame = self.frames[page_name]
     frame.tkraise()
-  
-  # 사용자의 history를 가리키게 하기  
-  def setplayerlist(self, set):
-    self.playerlist = set
-
-  # 컴퓨터의 history를 가리키게 하기
-  def setcomputerlist(self, set):
-    self.computerlist = set
-  
-  # history 내역 받기
-  def getuserhistory(self):
-    for i in range (len(self.userhistory)):
-      print(self.userhistory[i])
-      self.playerlist.insert(i, self.userhistory[i])
-    for i in range (len(self.computerhistory)):
-      print(self.computerhistory[i])
-      self.computerlist.insert(i, self.computerhistory[i])
-    print(self.dict)
-
-  # 사용자의 history 단어에 대한 뜻을 불러온다.
-  def usercheck(self):
-    selection = self.playerlist.curselection()
-    key = self.playerlist.get(selection[0])
-    tkinter.messagebox.showinfo(f"{key}뜻", self.dict[key])
-
-  # 컴퓨터의 history 단어에 대한 뜻을 불러온다.
-  def comcheck(self):
-    selection = self.computerlist.curselection()
-    key = self.computerlist.get(selection[0])
-    tkinter.messagebox.showinfo(f"{key}뜻", self.dict[key])
     
-  # 게임을 다시시작한다.
-  def restart(self, listbox, nextquery):
-    print("다시 시작")
 
+  def restart(self, listbox, nextquery):
+    # 게임을 다시시작한다.
     for i in range(listbox.size()):
       listbox.delete(0)
     
@@ -126,7 +94,6 @@ class App(tk.Tk):
       val = []
     return val
 
-  # 컴퓨터가 입력할 단어 찾기
   def findword(self, query):
     url = 'https://krdict.korean.go.kr/api/search?key=' + self.apikey + '&part=word&pos=1&q=' + query
     response = requests.get(url)
@@ -150,7 +117,7 @@ class App(tk.Tk):
     else:
       return ''
 
-  # 사용자 입력 단어의 유효성 검사
+
   def checkexists(self, query):
     url = 'https://krdict.korean.go.kr/api/search?key=' + self.apikey + '&part=word&sort=popular&num=100&pos=1&q=' + query
     response = requests.get(url)
@@ -171,7 +138,7 @@ class App(tk.Tk):
     else:
       return ''
 
-  # 사용가 입력한 단어가 입력이 가능한 단어인지 확인 후 실행 여부 결정
+
   def get_text(self, nextquery, entry, outputText, listbox):
     query = entry.get().strip()
     outputText.set("")
@@ -181,26 +148,27 @@ class App(tk.Tk):
       if query == "":
         wordOK = False
         listbox.insert(self.listint, "단어를 입력해주세요")
+        listbox.itemconfig(self.listint, bg="black", fg="white")
         self.listint += 1
         
       else:
         if not len(self.history)==0 and not query[0] == self.sword and not query=='':
           print("두음법칙 적용")
-          print("sword: ", self.sword, ", query: ", query)
+          print("sword: ", self.sword, ", ", "query: ", query)
           sdis = hgtk.letter.decompose(self.sword)
           qdis = hgtk.letter.decompose(query[0])
           if sdis[0] == 'ㄹ' and qdis[0] == 'ㄴ':
             listbox.insert(self.listint, '두음법칙 적용됨')
-            listbox.itemconfig(self.listint, bg="red", fg="white")
+            listbox.itemconfig(self.listint, bg="black", fg="white")
             self.listint += 1
           elif (sdis[0] == 'ㄹ' or sdis[0] == 'ㄴ') and qdis[0] == 'ㅇ' and qdis[1] in self.vowels: 
             listbox.insert(self.listint, '두음법칙 적용됨')
-            listbox.itemconfig(self.listint, bg="red", fg="white")
+            listbox.itemconfig(self.listint, bg="black", fg="white")
             self.listint += 1
           else:
             wordOK = False
             listbox.insert(self.listint, self.sword + '(으)로 시작하는 단어여야 합니다.')
-            listbox.itemconfig(self.listint, bg="red", fg="white")
+            listbox.itemconfig(self.listint, bg="black", fg="white")
             self.listint += 1
           
         # 잘못된 글자 입력
@@ -208,7 +176,7 @@ class App(tk.Tk):
           print("한글자")
           wordOK = False
           listbox.insert(self.listint, '적어도 두 글자가 되어야 합니다.')
-          listbox.itemconfig(self.listint, bg="red", fg="white")
+          listbox.itemconfig(self.listint, bg="black", fg="white")
           self.listint += 1
 
         # history 안에 있는 단어인지 확인
@@ -219,20 +187,19 @@ class App(tk.Tk):
           listbox.itemconfig(self.listint, bg="red", fg="white")
           self.listint += 1
 
-        # blacklist 안에 있는 단어인지 확인
         if query[len(query)-1] in self.blacklist:
           print("블랙리스트")
-          listbox.insert(self.listint, '아... 좀 심각한데요')
+          listbox.insert(self.listint, '아... 좀 선넘네요...')
           self.listint += 1
 
-        # 단어의 유효성 체크
         if wordOK:
           print("옳은 단어")
+          # 단어의 유효성을 체크
           ans = self.checkexists(query)
           if ans == '':
             wordOK = False
             listbox.insert(self.listint, '유효한 단어를 입력해 주십시오')
-            listbox.itemconfig(self.listint, bg="red", fg="white")
+            listbox.itemconfig(self.listint, bg="black", fg="white")
             self.listint += 1
           else:
             listbox.insert(self.listint, query)
@@ -254,18 +221,18 @@ class App(tk.Tk):
           sdis = hgtk.letter.decompose(start)
           if sdis[0] == 'ㄹ':
             listbox.insert(self.listint, '두음법칙 적용')
-            listbox.itemconfig(self.listint, bg="red", fg="white")
+            listbox.itemconfig(self.listint, bg="black", fg="white")
             self.listint += 1
             newq = hgtk.letter.compose('ㄴ', sdis[1], sdis[2])
             print(start, '->', newq)
             start = newq
             ans = self.findword(newq + '*')
 
-        if ans=='':
+        elif ans=='':
           #(ㄹ->)ㄴ -> ㅇ 검색
           sdis = hgtk.letter.decompose(start)
           listbox.insert(self.listint, '두음법칙 적용')
-          listbox.itemconfig(self.listint, bg="red", fg="white")
+          listbox.itemconfig(self.listint, bg="black", fg="white")
           self.listint += 1
           if sdis[0] == 'ㄴ' and sdis[1] in self.vowels:
             newq = hgtk.letter.compose('ㅇ', sdis[1], sdis[2])
@@ -283,7 +250,7 @@ class App(tk.Tk):
           self.answord = self.midReturn(ans, '<word>', '</word>') #단어 불러오기
           ansdef = self.midReturn(ans, '<definition>', '</definition>') # 품사 불러오기
           
-          # 컴퓨터 입력 시 history 단어 추가
+          # 기능1 - 컴퓨터 입력 시 history 단어 추가
           self.history.append(self.answord)
           listbox.insert(self.listint, self.answord)
           self.listint += 1
@@ -295,19 +262,18 @@ class App(tk.Tk):
           nextquery.configure(text= query + '>'+ self.answord)
           self.sword = self.answord[len(self.answord)-1]
 
-  # 졌습니다 버튼 클릭시 반응
   def lose(self, listbox):
     self.playing = False
     listbox.insert(self.listint, 'Player Lose')
     listbox.itemconfig(self.listint, bg="red", fg="white")
     self.listint += 1
       
-  # 게임종료
   def endGame(self):
+    # 게임종료
     self.destroy()
 
-  # 게임 방법을 보여준다
   def show_rule(self):
+    # 게임 방법을 보여준다
     GAME_RULE = '''
       ========파이썬 끝말잇기==========
       사전 데이터 제공: 국립국어원 한국어기초사전
@@ -344,14 +310,25 @@ class App(tk.Tk):
       '''
     tkinter.messagebox.showinfo("게임 방법", GAME_RULE)
 
-# 시작 페이지
+  # def countdown(self):
+  #   # 타이머
+  #   timer = tk.Label(self, text=self.remaintime, background = "white", height=2, width=10)
+  #   timer.place(x = 650, y = 500)
+  #   for i in range(5):
+  #     time.sleep(1)
+  #     self.remaintime -= 1
+  #     timer.configure(text=self.remaintime)
+
+  #   self.remaintime = 5
+
+
 class StartPage(tk.Frame):
   def __init__(self, parent, controller):
     tk.Frame.__init__(self, parent)
     self.controller = controller
     # 배경 이미지 설정
-    img = ImageTk.PhotoImage(Image.open('main.png'))
-    img = tk.PhotoImage(file = 'main.png')
+    #img = ImageTk.PhotoImage(Image.open('main.png'))
+    img = tk.PhotoImage(file = "main.png")
     startPage_label = tk.Label(self, image = img)
     startPage_label.image = img
     startPage_label.place(x = 20, y = 42)
@@ -368,6 +345,7 @@ class GamePage(tk.Frame):
   def __init__(self, parent, controller):
     tk.Frame.__init__(self, parent)
     self.controller = controller
+    self.remaintime = 5
     
     # 리스트박스가 스크롤바로 되어있어 스크롤하여 이전에 입력한 것을 확인할 수 있다
     self.scrollbar = tk.Scrollbar(self, orient=VERTICAL)
@@ -378,6 +356,9 @@ class GamePage(tk.Frame):
 
     self.listbox.pack()
     self.scrollbar.config(command=self.listbox.yview)
+
+    # 타이머
+    # Clock()
 
     # 입력할 단어의 첫 글자를 나타내는 창
     inputText = tk.Label(self, background="white", width=15, height=2, text="입력")
@@ -394,36 +375,44 @@ class GamePage(tk.Frame):
     gamebtn.place(x=510, y=606)
     
     # 게임을 다시 시작하는 버튼
-    repstartbtn = tk.Button(self, text="다시시작", background = "white", height=2, width=10, command=lambda: controller.restart(self.listbox, inputText))
-    repstartbtn.place(x=600, y=578)
+    replaybtn = tk.Button(self, text="다시시작", background = "white", height=2, width=10, command=lambda: controller.restart(self.listbox, inputText))
+    replaybtn.place(x=600, y=578)
 
     # 졌습니다 버튼
     replaybtn = tk.Button(self, text="졌습니다", background = "white", height=2, width=10, command=lambda: controller.lose(self.listbox))
     replaybtn.place(x=685, y=578)
 
     # 게임을 종료하는 버튼
-    # endbtn = tk.Button(self, text="게임종료", background = "white", height=2, width=10, command=lambda: [controller.restart(self.listbox, inputText), controller.show_frame("EndPage")])
-    endbtn = tk.Button(self, text="게임종료", background = "white", height=2, width=10, command=lambda:  controller.show_frame("EndPage"))
+    endbtn = tk.Button(self, text="게임종료", background = "white", height=2, width=10, command=lambda: [controller.restart(self.listbox, inputText), controller.show_frame("EndPage")])
     endbtn.place(x=600, y=625)
 
     # 게임 방법을 보여주는 버튼
     rulebtn = tk.Button(self, text="게임방법", background = "white", height=2, width=10, command=lambda: controller.show_rule())
     rulebtn.place(x=650, y=300)
 
+class Clock():
+  def __init__(self):
+    self.label = tk.Label(text="", font=('Helvetica', 48), fg='red')
+    self.label.pack()
+    self.update_clock()
     
+  def update_clock(self):
+    now = time.strftime("%H:%M:%S")
+    self.label.configure(text=now)
+    self.after(1000, self.update_clock)
+
 # game 종료 페이지
 class EndPage(tk.Frame):
   def __init__(self, parent, controller):
     tk.Frame.__init__(self, parent)
     self.controller = controller
 
-    # a = HistoryPage(tk.Frame)
     # 게임 종료 표시
     endlabel = tk.Label(self, text="Game Over", font=controller.big_font)
     endlabel.place(x=290, y=300)
 
     # 히스토리 확인버튼
-    historybutton = tk.Button(self, text="Check History", width=20, height=2, command=lambda: [controller.show_frame("HistoryPage"), controller.getuserhistory()])
+    historybutton = tk.Button(self, text="Check History", width=20, height=2, command=lambda: controller.show_frame("HistoryPage"))
     historybutton.place(x=325, y=370)
 
     # 시작으로 돌아가는 버튼
@@ -434,7 +423,7 @@ class EndPage(tk.Frame):
     endbutton = tk.Button(self, text="End game", width=20, height=2, command=lambda: controller.endGame())
     endbutton.place(x=325, y=470)
 
-# history를 확인하는 페이지
+
 class HistoryPage(tk.Frame):
   def __init__(self, parent, controller):
     tk.Frame.__init__(self, parent)
@@ -451,8 +440,11 @@ class HistoryPage(tk.Frame):
     self.playerlist = tk.Listbox(self, yscrollcommand=self.scrollbar.set, width=25, height=17, font=("Helvetica", 20))
     self.playerlist.pack(side="left")
     self.scrollbar.config(command=self.playerlist.yview)
-    controller.setplayerlist(self.playerlist)
-    
+
+    for i in range (len(controller.userhistory)):
+      print(controller.userhistory(i))
+      self.playerlist.insert(i, dict.keys(controller.userhistory(i)))
+
     # 컴퓨터의 history를 보여줌
     computerText = tk.Label(self, background="white", width=15, height=2, text="컴퓨터 history")
     computerText.place(x=540, y=20)
@@ -460,8 +452,7 @@ class HistoryPage(tk.Frame):
     self.computerlist = tk.Listbox(self, yscrollcommand=self.scrollbar.set, width=25, height=17, font=("Helvetica", 20))
     self.computerlist.pack(side="right")
     self.scrollbar.config(command=self.computerlist.yview)
-    controller.setcomputerlist(self.computerlist)
- 
+
     # 시작으로 돌아가는 버튼
     goTostartbutton = tk.Button(self, text="Go to the start page", width=20, height=2, command=lambda: controller.show_frame("StartPage"))
     goTostartbutton.place(x=230, y=650)
@@ -470,11 +461,6 @@ class HistoryPage(tk.Frame):
     endbutton = tk.Button(self, text="End game", width=20, height=2, command=lambda: controller.endGame())
     endbutton.place(x=400, y=650)
 
-    userhistotycheck = tk.Button(self, text="확인", width=10, height=2, command=lambda: controller.usercheck())
-    userhistotycheck.place(x = 0 , y = 650)
-
-    comhistorycheck = tk.Button(self, text="확인", width=10, height=2, command=lambda: controller.comcheck())
-    comhistorycheck.place(x = 700 , y = 650)
 
 # 창 실행
 if __name__ == "__main__":
