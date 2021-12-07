@@ -6,6 +6,8 @@ class StartPage(tk.Frame):
     self.controller = controller
     # 배경 이미지 설정
     #img = ImageTk.PhotoImage(Image.open('main.png'))
+
+    # 만약 아래 코드에 오류가 발생할 경우 위에 코드를 이용해주세요
     img = tk.PhotoImage(file = "py_endtoend/main.png")
     # img = tk.PhotoImage(file = "main.png")
     startPage_label = tk.Label(self, image = img)
