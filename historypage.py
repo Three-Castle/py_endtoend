@@ -32,7 +32,7 @@ class HistoryPage(tk.Frame):
     controller.setcomputerlist(self.computerlist)
 
     # 시작으로 돌아가는 버튼
-    goTostartbutton = tk.Button(self, text="Go to the start page", width=20, height=2, command=lambda: controller.show_frame("StartPage"))
+    goTostartbutton = tk.Button(self, text="Go to the start page", width=20, height=2, command=lambda: [self.resetHistory(), controller.show_frame("StartPage")])
     goTostartbutton.place(x=230, y=650)
 
     # 창을 닫고 게임을 종료하는 버튼
@@ -44,3 +44,13 @@ class HistoryPage(tk.Frame):
 
     comhistorycheck = tk.Button(self, text="확인", width=10, height=2, command=lambda: controller.comcheck())
     comhistorycheck.place(x = 700 , y = 650)
+
+  def resetHistory(self):
+    for i in range(self.playerlist.size()):
+      self.playerlist.delete(0)
+  
+    for i in range(self.computerlist.size()):
+      self.computerlist.delete(0)
+
+    self.userhistory = []
+    self.computerhistory = []

@@ -14,11 +14,11 @@ def playerturn (count, query, listbox, controller) :
             print("sword: ", controller.sword, ", ", "query: ", query)
             sdis = hgtk.letter.decompose(controller.sword)
             qdis = hgtk.letter.decompose(query[0])
-            if sdis[0] == 'ㄹ' and qdis[0] == 'ㄴ':
+            if sdis[0] == 'ㄹ' and qdis[0] == 'ㄴ' and sdis[1] == qdis[1]:
                 listbox.insert(controller.listint, '두음법칙 적용됨')
                 listbox.itemconfig(controller.listint, bg="red", fg="white")
                 controller.listint += 1
-            elif (sdis[0] == 'ㄹ' or sdis[0] == 'ㄴ') and qdis[0] == 'ㅇ' and qdis[1] in controller.vowels: 
+            elif (sdis[0] == 'ㄹ' or sdis[0] == 'ㄴ') and qdis[0] == 'ㅇ' and sdis[1] == qdis[1]: 
                 listbox.insert(controller.listint, '두음법칙 적용됨')
                 listbox.itemconfig(controller.listint, bg="red", fg="white")
                 controller.listint += 1

@@ -51,11 +51,11 @@ class GamePage(tk.Frame):
   
   def restart(self):
      # 게임을 다시시작한다.
-    print("다시 시작")
+    print("gamepage 다시 시작")
 
     for i in range(self.listbox.size()):
       self.listbox.delete(0)
-    
+
     self.controller.playing = True
     self.controller.history = []
     self.controller.userhistory = []
@@ -65,3 +65,5 @@ class GamePage(tk.Frame):
     self.controller.answord = ''
     self.controller.sword = ''
     self.inputText.configure(text= "입력하세요")
+    self.playerlist=[]
+    self.computerlist=[]
