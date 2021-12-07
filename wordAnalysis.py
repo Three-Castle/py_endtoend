@@ -20,7 +20,7 @@ def midReturn_all(val, s, e):
         val = []
     return val
 
-def findword(query, apikey, history, blacklist):
+def findword(count, query, apikey, history, blacklist):
     url = 'https://krdict.korean.go.kr/api/search?key=' + apikey + '&part=word&pos=1&q=' + query
     response = requests.get(url)
     ans = []
@@ -33,8 +33,12 @@ def findword(query, apikey, history, blacklist):
             #한글자가 아니고 품사가 명사일때
             word = midReturn(w,'<word>','</word>')
             pos = midReturn(w,'<pos>','</pos>')
-            if len(word) > 1 and pos == '명사' and not word in history and not word[len(word)-1] in blacklist:
+        
+            if count != 1 and len(word) == count and pos == '명사' and not word in history and not word[len(word)-1] in blacklist:
                 ans.append(w)
+            elif count == 1 and len(word) > count and pos == '명사' and not word in history and not word[len(word)-1] in blacklist:
+                ans.append(w)
+
     if len(ans)>0:
         return random.choice(ans)
     else:

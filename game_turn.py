@@ -1,7 +1,7 @@
 import hgtk
 from wordAnalysis import midReturn, midReturn_all, findword, checkexists
 
-def playerturn (query, listbox, controller) :
+def playerturn (count, query, listbox, controller) :
     controller.wordOk = True
     if query == "":
         controller.wordOk = False
@@ -29,10 +29,10 @@ def playerturn (query, listbox, controller) :
                 controller.listint += 1
         
         # 잘못된 글자 입력
-        if len(query) == 1:
-            print("한글자")
+        if (count == 1 and len(query) == 1) or (count != 1 and len(query) != count):
+            print(str(count) + "글자")
             controller.wordOk = False
-            listbox.insert(controller.listint, '적어도 두 글자가 되어야 합니다.')
+            listbox.insert(controller.listint, str(count) + '글자가 되어야 합니다.')
             listbox.itemconfig(controller.listint, bg="red", fg="white")
             controller.listint += 1
 
@@ -68,34 +68,38 @@ def playerturn (query, listbox, controller) :
                 controller.listint += 1
     return query
 
-def computerturn (query, listbox, nextquery, controller) :
+def computerturn (count, query, listbox, nextquery, controller) :
     # 기능1 - 사용자 입력 시 history 단어 추가                
     controller.history.append(query)         
             
     start = query[len(query)-1]
-    ans = findword(start + '*', controller.apikey, controller.history, controller.blacklist)
+    
+    ans = findword(count, start + '*', controller.apikey, controller.history, controller.blacklist)
+    
     if ans=='':
         #ㄹ -> ㄴ 검색
         sdis = hgtk.letter.decompose(start)
         if sdis[0] == 'ㄹ':
-            listbox.insert(controller.listint, '두음법칙 적용')
-            listbox.itemconfig(controller.listint, bg="red", fg="white")
-            controller.listint += 1
             newq = hgtk.letter.compose('ㄴ', sdis[1], sdis[2])
             print(start, '->', newq)
             start = newq
-            ans = findword(newq + '*', controller.apikey, controller.history, controller.blacklist)
+            ans = findword(count, newq + '*', controller.apikey, controller.history, controller.blacklist)
+            if ans != '':
+                listbox.insert(controller.listint, '두음법칙 적용')
+                listbox.itemconfig(controller.listint, bg="red", fg="white")
+                controller.listint += 1
 
     if ans=='':
         #(ㄹ->)ㄴ -> ㅇ 검색
         sdis = hgtk.letter.decompose(start)
-        listbox.insert(controller.listint, '두음법칙 적용')
-        listbox.itemconfig(controller.listint, bg="red", fg="white")
-        controller.listint += 1
         if sdis[0] == 'ㄴ' and sdis[1] in controller.vowels:
             newq = hgtk.letter.compose('ㅇ', sdis[1], sdis[2])
             print(start, '->', newq)
-            ans = findword(newq + '*', controller.apikey, controller.history, controller.blacklist)
+            ans = findword(count, newq + '*', controller.apikey, controller.history, controller.blacklist)
+        if ans != '':
+            listbox.insert(controller.listint, '두음법칙 적용')
+            listbox.itemconfig(controller.listint, bg="red", fg="white")
+            controller.listint += 1
                 
     if ans=='':
         print('당신의 승리!')

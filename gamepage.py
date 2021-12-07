@@ -6,7 +6,8 @@ class GamePage(tk.Frame):
   def __init__(self, parent, controller):
     tk.Frame.__init__(self, parent)
     self.controller = controller
-    
+
+
     # 리스트박스가 스크롤바로 되어있어 스크롤하여 이전에 입력한 것을 확인할 수 있다
     self.scrollbar = tk.Scrollbar(self, orient=VERTICAL)
     self.scrollbar.pack(side="right", fill="y")
@@ -18,8 +19,8 @@ class GamePage(tk.Frame):
     self.scrollbar.config(command=self.listbox.yview)
 
     # 입력할 단어의 첫 글자를 나타내는 창
-    inputText = tk.Label(self, background="white", width=15, height=2, text="입력")
-    inputText.place(x=170, y=609)
+    self.inputText = tk.Label(self, background="white", width=15, height=2, text="입력")
+    self.inputText.place(x=170, y=609)
 
     # 단어를 입력하는 
     outputText = tk.StringVar()
@@ -28,12 +29,12 @@ class GamePage(tk.Frame):
     outputEnt.place(x= 290, y = 609, height=35)
 
     # 입력한 단어를 보내는 버튼
-    gamebtn = tk.Button(self, text="입력", background = "white", height=2, width=10, command=lambda: controller.get_text(inputText, outputEnt, outputText, self.listbox))
+    gamebtn = tk.Button(self, text="입력", background = "white", height=2, width=10, command=lambda: controller.get_text(self.inputText, outputEnt, outputText, self.listbox))
     gamebtn.place(x=510, y=606)
     
     # 게임을 다시 시작하는 버튼
-    replaybtn = tk.Button(self, text="다시시작", background = "white", height=2, width=10, command=lambda: controller.restart(self.listbox, inputText))
-    replaybtn.place(x=600, y=578)
+    restartbtn = tk.Button(self, text="다시시작", background = "white", height=2, width=10, command=lambda: controller.restart(self.listbox, self.inputText))
+    restartbtn.place(x=600, y=578)
 
     # 졌습니다 버튼
     replaybtn = tk.Button(self, text="졌습니다", background = "white", height=2, width=10, command=lambda: controller.lose(self.listbox))
@@ -47,6 +48,20 @@ class GamePage(tk.Frame):
     # 게임 방법을 보여주는 버튼
     rulebtn = tk.Button(self, text="게임방법", background = "white", height=2, width=10, command=lambda: controller.show_rule())
     rulebtn.place(x=650, y=300)
-
-
   
+  def restart(self):
+     # 게임을 다시시작한다.
+    print("다시 시작")
+
+    for i in range(self.listbox.size()):
+      self.listbox.delete(0)
+    
+    self.controller.playing = True
+    self.controller.history = []
+    self.controller.userhistory = []
+    self.controller.computerhistory = []
+    self.controller.listint = 0
+    self.controller.dict = {}
+    self.controller.answord = ''
+    self.controller.sword = ''
+    self.inputText.configure(text= "입력하세요")

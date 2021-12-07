@@ -33,7 +33,7 @@ class App(tk.Tk):
     self.sword = ''
     self.playerlist=[]
     self.computerlist=[]
-
+    self.WORD = 1
     self.wordOk = True
 
     #키 발급은 https://krdict.korean.go.kr/openApi/openApiInfo
@@ -60,6 +60,8 @@ class App(tk.Tk):
   def show_frame(self, page_name):
     # 화면을 전환한다
     frame = self.frames[page_name]
+    if page_name == "GamePage":
+        frame.restart()
     frame.tkraise()
     
   def setplayerlist(self, set):
@@ -114,11 +116,11 @@ class App(tk.Tk):
 
     listbox = Listbox
     if self.playing == True:
-      query = playerturn(query, listbox, controller=self)
+      query = playerturn(self.WORD, query, listbox, controller=self)
       
       #컴퓨터 턴
       if self.wordOk:
-        computerturn(query, listbox, nextquery, controller=self)
+        computerturn(self.WORD, query, listbox, nextquery, controller=self)
 
   def lose(self, listbox):
     self.playing = False
@@ -167,3 +169,6 @@ class App(tk.Tk):
       ================================
       '''
     tkinter.messagebox.showinfo("게임 방법", GAME_RULE)
+
+  def setWord(self, count):
+    self.WORD = count

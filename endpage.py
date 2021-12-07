@@ -21,3 +21,7 @@ class EndPage(tk.Frame):
     # 창을 닫고 게임을 종료하는 버튼
     endbutton = tk.Button(self, text="End game", width=20, height=2, command=lambda: controller.endGame())
     endbutton.place(x=325, y=470)
+
+
+
+    
