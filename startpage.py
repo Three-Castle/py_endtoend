@@ -1,4 +1,5 @@
 import tkinter as tk
+import  os
 from PIL import Image, ImageTk
 
 class StartPage(tk.Frame):
@@ -6,9 +7,10 @@ class StartPage(tk.Frame):
     tk.Frame.__init__(self, parent)
     self.controller = controller
     # 배경 이미지 설정
-    img = ImageTk.PhotoImage(Image.open('py_endtoend-main/main.png'))
-
-    # img = ImageTk.PhotoImage(Image.open('main.png'))
+    game_folder = os.path.dirname(__file__)
+    img_folder = os.path.join(game_folder, "main.png")
+    # img = ImageTk.PhotoImage(Image.open('py_endtoend-main/main.png'))
+    img = ImageTk.PhotoImage(Image.open(img_folder))
     # 만약 아래 코드에 오류가 발생할 경우 아래 코드를 이용해주세요
     # img = tk.PhotoImage(file = "py_endtoend/main.png")
     # img = tk.PhotoImage(file = "main.png")
